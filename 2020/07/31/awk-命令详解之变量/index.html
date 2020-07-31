@@ -22,28 +22,50 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"8.0.0-rc.4","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Sehnen&#39;s Blog">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="在阅读这篇文章之前，最好先阅读之前的文章，以之前的知识点作为基础，再看这篇文章会容易理解很多。 之前的文章在使用到”输入分隔符”和”输出分隔符”的时候，我们都提到了一个名词：”变量”。 这篇文章我们就来详细的总结一下awk中的变量，我们会先对概念进行描述，如果概念中有不明白的地方，不要着急，对应其示例，你自然就会明白。 对于awk来说”变量”又分为”内置变量” 和 “自定义变量” , “输入分隔符">
+<meta property="og:type" content="article">
+<meta property="og:title" content="awk 命令详解之变量">
+<meta property="og:url" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/index.html">
 <meta property="og:site_name" content="Sehnen&#39;s Blog">
+<meta property="og:description" content="在阅读这篇文章之前，最好先阅读之前的文章，以之前的知识点作为基础，再看这篇文章会容易理解很多。 之前的文章在使用到”输入分隔符”和”输出分隔符”的时候，我们都提到了一个名词：”变量”。 这篇文章我们就来详细的总结一下awk中的变量，我们会先对概念进行描述，如果概念中有不明白的地方，不要着急，对应其示例，你自然就会明白。 对于awk来说”变量”又分为”内置变量” 和 “自定义变量” , “输入分隔符">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_1.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_2.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_3.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_4.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_5.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_6.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_7.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_8.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_9.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_10.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_11.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_12.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_13.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_14.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_15.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_16.png">
+<meta property="article:published_time" content="2020-07-31T10:48:59.000Z">
+<meta property="article:modified_time" content="2020-07-31T11:32:39.663Z">
 <meta property="article:author" content="Sehnen">
+<meta property="article:tag" content="awk">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_1.png">
 
-<link rel="canonical" href="http://yoursite.com/">
+<link rel="canonical" href="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/">
 
 
 <script class="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>Sehnen's Blog</title>
+  <title>awk 命令详解之变量 | Sehnen's Blog</title>
   
 
 
@@ -192,7 +214,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -204,6 +226,7 @@
 
       <!--noindex-->
       <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E5%8F%98%E9%87%8F"><span class="nav-number">1.</span> <span class="nav-text">内置变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E5%8F%98%E9%87%8FNR"><span class="nav-number">1.1.</span> <span class="nav-text">内置变量NR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E5%8F%98%E9%87%8FFNR"><span class="nav-number">1.2.</span> <span class="nav-text">内置变量FNR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E5%8F%98%E9%87%8FRS"><span class="nav-number">1.3.</span> <span class="nav-text">内置变量RS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E5%8F%98%E9%87%8FORS"><span class="nav-number">1.4.</span> <span class="nav-text">内置变量ORS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E5%8F%98%E9%87%8FFILENAME"><span class="nav-number">1.5.</span> <span class="nav-text">内置变量FILENAME</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E5%8F%98%E9%87%8FARGC%E4%B8%8EARGV"><span class="nav-number">1.6.</span> <span class="nav-text">内置变量ARGC与ARGV</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%98%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">自定义变量</span></a></li></ol></div>
       </section>
       <!--/noindex-->
 
@@ -254,9 +277,10 @@
       <div class="main-inner">
         
 
-        <div class="content index posts-expand">
+        <div class="content post posts-expand">
           
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -274,10 +298,9 @@
 
     
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/" class="post-title-link" itemprop="url">awk 命令详解之变量</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          awk 命令详解之变量
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -313,7 +336,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>在阅读这篇文章之前，最好先阅读之前的文章，以之前的知识点作为基础，再看这篇文章会容易理解很多。</p>
+        <p>在阅读这篇文章之前，最好先阅读之前的文章，以之前的知识点作为基础，再看这篇文章会容易理解很多。</p>
 <p>之前的文章在使用到”输入分隔符”和”输出分隔符”的时候，我们都提到了一个名词：”变量”。</p>
 <p>这篇文章我们就来详细的总结一下awk中的变量，我们会先对概念进行描述，如果概念中有不明白的地方，不要着急，对应其示例，你自然就会明白。</p>
 <p>对于awk来说”变量”又分为”内置变量” 和 “自定义变量” , “输入分隔符FS”和”输出分隔符OFS”都属于内置变量。</p>
@@ -401,420 +424,33 @@
 <p><img src="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/032417_0046_16.png" alt="awk从放弃到入门（3）：awk变量"></p>
 <p>好了，awk中变量的使用方法就暂时总结到这里，希望这篇文章会对你有所帮助。</p>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/awk/" rel="tag"># awk</a>
+          </div>
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Sehnen">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Sehnen's Blog">
-    </span>
-
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/" class="post-title-link" itemprop="url">awk 命令详解(2) ：awk分隔符</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-07-31 18:32:09 / 修改时间：19:34:30" itemprop="dateCreated datePublished" datetime="2020-07-31T18:32:09+08:00">2020-07-31</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.5k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在前一篇文章中我们略微提到过”分隔符”，但是并没有细说，那么我们今天就聊聊什么是分隔符，awk有哪些分隔符，awk的默认分割符是空格，但是，这样描述并不精确，因为，awk的分隔符还分为两种，”输入分隔符” 和 “输出分隔符” 。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/31/draft/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Sehnen">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Sehnen's Blog">
-    </span>
-
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/31/draft/" class="post-title-link" itemprop="url">未命名</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-07-31 18:24:58 / 修改时间：19:32:42" itemprop="dateCreated datePublished" datetime="2020-07-31T18:24:58+08:00">2020-07-31</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>137</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h3 id="匹配空行"><a href="#匹配空行" class="headerlink" title="匹配空行"></a>匹配空行</h3><p><code>grep &quot;^$&quot;</code></p>
-<h3 id="匹陪m结尾的行"><a href="#匹陪m结尾的行" class="headerlink" title="匹陪m结尾的行"></a>匹陪m结尾的行</h3><p><code>grep &quot;m$&quot;</code></p>
-<h3 id="删除行尾空格"><a href="#删除行尾空格" class="headerlink" title="删除行尾空格"></a>删除行尾空格</h3><p><code>sed -i &#39;s/[]*$//g&#39; filename</code></p>
-<h3 id="输出行尾的-符号"><a href="#输出行尾的-符号" class="headerlink" title="输出行尾的$符号"></a>输出行尾的$符号</h3><p><code>cat -An filename</code></p>
-<h3 id="排除空行"><a href="#排除空行" class="headerlink" title="排除空行"></a>排除空行</h3><p><code>grep -v &#39;^$&#39; filename</code></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Sehnen">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Sehnen's Blog">
-    </span>
-
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">awk 命令详解(1)</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-07-31 17:16:50 / 修改时间：19:38:22" itemprop="dateCreated datePublished" datetime="2020-07-31T17:16:50+08:00">2020-07-31</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.9k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>我们先来用专业的术语描述一下awk是什么，如果你看不懂，没关系，我们会再用”大白话”解释一遍。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/" rel="prev" title="awk 命令详解(2) ：awk分隔符">
+      <i class="fa fa-chevron-left"></i> awk 命令详解(2) ：awk分隔符
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/31/hexo%E4%B8%8A%E4%BC%A0%E6%9C%AC%E5%9C%B0%E5%9B%BE%E7%89%87%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Sehnen">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Sehnen's Blog">
-    </span>
-
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/31/hexo%E4%B8%8A%E4%BC%A0%E6%9C%AC%E5%9C%B0%E5%9B%BE%E7%89%87%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" class="post-title-link" itemprop="url">hexo上传本地图片的解决方法</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-07-31 14:19:46 / 修改时间：19:28:31" itemprop="dateCreated datePublished" datetime="2020-07-31T14:19:46+08:00">2020-07-31</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.5k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>最近重新开始用起hexo，但是发现在文章中引用本地图片时总是显示不出来。</p>
-<h3 id="一、插件安装与配置"><a href="#一、插件安装与配置" class="headerlink" title="一、插件安装与配置"></a>一、插件安装与配置</h3><p>首先我们需要安装一个图片路径转换的插件，这个插件名字是<strong>hexo-asset-image</strong></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/31/hexo%E4%B8%8A%E4%BC%A0%E6%9C%AC%E5%9C%B0%E5%9B%BE%E7%89%87%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/31/%E5%90%91%E5%90%8E%E5%BC%95%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Sehnen">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Sehnen's Blog">
-    </span>
-
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/31/%E5%90%91%E5%90%8E%E5%BC%95%E7%94%A8/" class="post-title-link" itemprop="url">向后引用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-07-31 13:29:32 / 修改时间：19:34:20" itemprop="dateCreated datePublished" datetime="2020-07-31T13:29:32+08:00">2020-07-31</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>3.6k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>前文中，已经总结了正则表达式中的常用字符、次数匹配、位置匹配等，这篇文章中，我们来了解一下正则中的”分组”与”后向引用”。</p>
-<p>什么是分组？什么是后向引用？我们慢慢聊。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/31/%E5%90%91%E5%90%8E%E5%BC%95%E7%94%A8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
   
 
 

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  
+  <link rel="stylesheet" href="/lib/animate-css/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"8.0.0-rc.4","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="在前一篇文章中我们略微提到过”分隔符”，但是并没有细说，那么我们今天就聊聊什么是分隔符，awk有哪些分隔符，awk的默认分割符是空格，但是，这样描述并不精确，因为，awk的分隔符还分为两种，”输入分隔符” 和 “输出分隔符” 。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="awk 命令详解(2) ：awk分隔符">
+<meta property="og:url" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/index.html">
+<meta property="og:site_name" content="Sehnen&#39;s Blog">
+<meta property="og:description" content="在前一篇文章中我们略微提到过”分隔符”，但是并没有细说，那么我们今天就聊聊什么是分隔符，awk有哪些分隔符，awk的默认分割符是空格，但是，这样描述并不精确，因为，awk的分隔符还分为两种，”输入分隔符” 和 “输出分隔符” 。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_1.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_2.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_3.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_4.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_5.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_6.png">
+<meta property="article:published_time" content="2020-07-31T10:32:09.000Z">
+<meta property="article:modified_time" content="2020-07-31T11:34:30.864Z">
+<meta property="article:author" content="Sehnen">
+<meta property="article:tag" content="awk">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_1.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>awk 命令详解(2) ：awk分隔符 | Sehnen's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <main class="main">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Sehnen's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%88%86%E9%9A%94%E7%AC%A6"><span class="nav-number">1.</span> <span class="nav-text">输入分隔符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%E5%88%86%E9%9A%94%E7%AC%A6"><span class="nav-number">2.</span> <span class="nav-text">输出分隔符</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Sehnen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </header>
+
+      
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div id="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+      <div class="main-inner">
+        
+
+        <div class="content post posts-expand">
+          
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Sehnen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Sehnen's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          awk 命令详解(2) ：awk分隔符
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-07-31 18:32:09 / 修改时间：19:34:30" itemprop="dateCreated datePublished" datetime="2020-07-31T18:32:09+08:00">2020-07-31</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>在前一篇文章中我们略微提到过”分隔符”，但是并没有细说，那么我们今天就聊聊什么是分隔符，awk有哪些分隔符，awk的默认分割符是空格，但是，这样描述并不精确，因为，awk的分隔符还分为两种，”输入分隔符” 和 “输出分隔符” 。</p>
+<a id="more"></a>
+
+<p>此处我们先将分隔符的概念列出，看不懂没关系，我们会一一进行举例，到时自然会明白。</p>
+<p>输入分隔符，英文原文为field separator，此处简称为FS</p>
+<p>输入分割符，默认是空白字符(即空格)，awk默认以空白字符为分隔符对每一行进行分割。</p>
+<p>输出分割符，英文原文为output field separator，此处简称为OFS</p>
+<p>awk将每行分割后，输出在屏幕上的时候，以什么字符作为分隔符，awk默认的输出分割符也是空格。</p>
+<p>光看概念是不是不容易搞明白？没关系，我们来动手实践一下，胜过千言万语。</p>
+<h2 id="输入分隔符"><a href="#输入分隔符" class="headerlink" title="输入分隔符"></a>输入分隔符</h2><p>我们现在通过一些小例子，搞明白这两个分隔符的作用，不过我们要一个一个来，我们先看一些”输入分隔符”的小例子</p>
+<p>输入分隔符比较容易理解，当awk逐行处理文本的时候，以输入分隔符为准，将文本切成多个片段，默认使用空格，但是，如果一段文字中没有空格，我们可以指定以特定的文字或符号作为输入分割符，比如下图中的例子，我们指定使用”#”作为输入分隔符。</p>
+<p><img src="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_1.png" alt="awk从放弃到入门（2）：awk分隔符"></p>
+<p>上图中，我们使用了-F 选项，指定了使用#号作为输入分隔符，于是，awk将每一行都通过#号为我们分割了。</p>
+<p>除了使用 -F 选项指定输入分隔符，还能够通过设置内部变量的方式，指定awk的输入分隔符，awk内置变量FS可以用于指定输入分隔符，但是在使用变量时，需要使用-v选项，用于指定对应的变量，比如 -v FS=’#’，如下图</p>
+<p><img src="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_2.png" alt="awk从放弃到入门（2）：awk分隔符"></p>
+<p>其实不管是通过-F选项，还是通过FS这个内置变量，目的都是设置指定的输入分隔符，达到的效果是相同的，我们会在另一篇文章中单独对awk的变量进行总结，如果你不理解这些变量，没有关系，后面自然会明白。</p>
+<p>而此处，我们使用了awk中的一个选项，就是-F，还记得我们之前总结的awk的使用语法吗。</p>
+<p>我们说过，awk的语法如下</p>
+<p>awk [options] ‘Pattern{Action}’ file</p>
+<p>而-F，就是options的一种，用于指定输入分隔符。</p>
+<p>-v也是options的一种，用于设置变量的值。</p>
+<p>再结合之前的文章，我们已经将options 、pattern 、action都简单的应用了一遍，好了，我们已经”会用”awk了。</p>
+<h2 id="输出分隔符"><a href="#输出分隔符" class="headerlink" title="输出分隔符"></a>输出分隔符</h2><p>那么什么是输出分隔符呢？聪明的你应该已经发现了，当awk为我们输出每一列的时候，会使用空格隔开每一列，其实，这个空格，就是awk的默认的输出分隔符，下图中红线标注的空格部分，就是awk的默认的输出分隔符。</p>
+<p><img src="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_3.png" alt="awk从放弃到入门（2）：awk分隔符"></p>
+<p>输出分割符的意思就是：当我们要对处理完的文本进行输出的时候，以什么文本或符号作为分隔符。</p>
+<p>我们可以使用awk的内置变量OFS来设定awk的输出分隔符，当然，使用变量的时候要配合使用-v选项，示例如下</p>
+<p><img src="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_4.png" alt="awk从放弃到入门（2）：awk分隔符"></p>
+<p>现在，我们可以同时指定输入分隔符和输出分割符了，示例如下</p>
+<p><img src="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_5.png" alt="awk从放弃到入门（2）：awk分隔符"></p>
+<p>我们刚才解释了awk的输出分隔符，如果，在输出的时候，我们想要让两列合并在一起显示，不使用输出分隔符分开显示，该怎么做呢？如下图所示，蓝线之上使用默认的输出分隔符进行了分隔，而蓝线之下的两种方法均未使用输出分隔符进行分隔，而是将两列合在一起显示了。</p>
+<p><img src="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3-2/032217_0609_6.png" alt="awk从放弃到入门（2）：awk分隔符"></p>
+<p>细心如你一定发现了，上图中的示例在语法上的区别就是，一个有”逗号”，一个没有”逗号”。</p>
+<p>awk ‘{print $1 $2}’ 表示每行分割后，将第一列（第一个字段）和第二列（第二个字段）连接在一起输出。</p>
+<p>awk ‘{print $1,$2}’ 表示每行分割后，将第一列（第一个字段）和第二列（第二个字段）以输出分隔符隔开后显示。</p>
+<p>好了，awk的分隔符就总结到这里，希望这篇文章能对你有所帮助。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/awk/" rel="tag"># awk</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/31/draft/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/31/awk-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E4%B9%8B%E5%8F%98%E9%87%8F/" rel="next" title="awk 命令详解之变量">
+      awk 命令详解之变量 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+        </div>
+        
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sehnen</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">15k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">13 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
